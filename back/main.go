@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -18,19 +19,22 @@ func main() {
 	// decrypted_index := plugboard.backward(encrypted_index)
 	// fmt.Println(string(ALPHABET[decrypted_index]))
 
-	roter := NewRoter(mapAlphabet, 1)
-	encrypted_index := roter.forward(strings.Index(ALPHABET, "A"))
-	fmt.Println(string(ALPHABET[encrypted_index]))
-	decrypted_index := roter.backward(encrypted_index)
-	fmt.Println(string(ALPHABET[decrypted_index]))
+	// roter := NewRoter(mapAlphabet, 1)
+	// encrypted_index := roter.forward(strings.Index(ALPHABET, "A"))
+	// fmt.Println(string(ALPHABET[encrypted_index]))
+	// decrypted_index := roter.backward(encrypted_index)
+	// fmt.Println(string(ALPHABET[decrypted_index]))
 
-	roter.rotate(1)
+	// roter.rotate(1)
 
-	encrypted_index_r := roter.forward(strings.Index(ALPHABET, "A"))
-	fmt.Println(string(ALPHABET[encrypted_index_r]))
-	decrypted_index_r := roter.backward(encrypted_index_r)
-	fmt.Println(string(ALPHABET[decrypted_index_r]))
+	// encrypted_index_r := roter.forward(strings.Index(ALPHABET, "A"))
+	// fmt.Println(string(ALPHABET[encrypted_index_r]))
+	// decrypted_index_r := roter.backward(encrypted_index_r)
+	// fmt.Println(string(ALPHABET[decrypted_index_r]))
 
+	refrector := NewReflector(mapAlphabet)
+	i := refrector.reflect(2)
+	fmt.Println(string(ALPHABET[i]))
 }
 
 // PlugBoard
@@ -117,4 +121,40 @@ func (r *Roter) rotate(offset int) int {
 func (r *Roter) reset() {
 	r.alphabet = ALPHABET
 	r.rotations = 0
+}
+
+// Reflector
+type Reflector struct {
+	reflectorMap map[string]string
+}
+
+func NewReflector(mapAlphabet string) *Reflector {
+	ref := &Reflector{
+		reflectorMap: make(map[string]string),
+	}
+
+	//渡されたtextとALPHABETの文字列からmapを生成
+	for i, char := range ALPHABET[:len(mapAlphabet)] {
+		ref.reflectorMap[string(char)] = string(mapAlphabet[i])
+	}
+
+	//生成したmapのkey:valueが対の関係になっているかチェック
+	for x, y := range ref.reflectorMap {
+		if x != ref.reflectorMap[y] {
+			os.Exit(1)
+		}
+	}
+	return ref
+}
+
+func (ref *Reflector) reflect(index_num int) int {
+	//渡されたindex番号の文字列をキーとする文字列をmapから取得
+	reflected_char := ref.reflectorMap[string(ALPHABET[index_num])]
+	for i, v := range ALPHABET {
+		//ALPHABETの文字列から指定の文字列のindex番号を取得しreturn
+		if string(v) == reflected_char {
+			return i
+		}
+	}
+	panic("Error")
 }
