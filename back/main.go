@@ -13,28 +13,22 @@ func main() {
 	if len(mapAlphabet) > len(ALPHABET) {
 		mapAlphabet = mapAlphabet[:len(ALPHABET)]
 	}
-	// plugboard := NewAlphabetMapper(mapAlphabet)
-	// encrypted_index := plugboard.forward(strings.Index(ALPHABET, "A"))
-	// fmt.Println(string(ALPHABET[encrypted_index]))
-	// decrypted_index := plugboard.backward(encrypted_index)
-	// fmt.Println(string(ALPHABET[decrypted_index]))
-
-	// roter := NewRoter(mapAlphabet, 1)
-	// encrypted_index := roter.forward(strings.Index(ALPHABET, "A"))
-	// fmt.Println(string(ALPHABET[encrypted_index]))
-	// decrypted_index := roter.backward(encrypted_index)
-	// fmt.Println(string(ALPHABET[decrypted_index]))
-
-	// roter.rotate(1)
-
-	// encrypted_index_r := roter.forward(strings.Index(ALPHABET, "A"))
-	// fmt.Println(string(ALPHABET[encrypted_index_r]))
-	// decrypted_index_r := roter.backward(encrypted_index_r)
-	// fmt.Println(string(ALPHABET[decrypted_index_r]))
-
+	//インスタンスを作成
+	plugboard := NewPlugBoard(mapAlphabet)
+	roter1 := NewRoter(mapAlphabet, 3)
+	roter2 := NewRoter(mapAlphabet, 2)
+	roter3 := NewRoter(mapAlphabet, 1)
 	refrector := NewReflector(mapAlphabet)
-	i := refrector.reflect(2)
-	fmt.Println(string(ALPHABET[i]))
+	//roterのスライスを作成
+	roters := []*Roter{
+		roter1,
+		roter2,
+		roter3,
+	}
+	EnigmaMachine := NewEnigmaMachine(*plugboard, *refrector, roters)
+	encryptedText := EnigmaMachine.encript("T")
+	fmt.Println(encryptedText)
+
 }
 
 // PlugBoard
@@ -45,7 +39,7 @@ type PlugBoard struct {
 }
 
 // コンストラクタ
-func NewAlphabetMapper(mapAlphabet string) *PlugBoard {
+func NewPlugBoard(mapAlphabet string) *PlugBoard {
 	//mapの初期化
 	p := &PlugBoard{
 		alphabet:    ALPHABET,
@@ -101,7 +95,7 @@ type Roter struct {
 
 // PlugBoardを埋め込んで(embedded)初期化
 func NewRoter(mapAlphabet string, offset int) *Roter {
-	parent := NewAlphabetMapper(mapAlphabet)
+	parent := NewPlugBoard(mapAlphabet)
 	r := &Roter{
 		PlugBoard: *parent,
 		offset:    offset,
@@ -157,4 +151,97 @@ func (ref *Reflector) reflect(index_num int) int {
 		}
 	}
 	panic("Error")
+}
+
+// enigmamachine roterは配列で複数定義できるようにする
+type EnigmaMachine struct {
+	PlugBoard
+	Reflector
+	Roters []*Roter
+}
+
+func NewEnigmaMachine(PlugBoard PlugBoard, Reflector Reflector, Roters []*Roter) *EnigmaMachine {
+	e := &EnigmaMachine{
+		PlugBoard: PlugBoard,
+		Reflector: Reflector,
+		Roters:    Roters,
+	}
+	return e
+}
+
+func (e *EnigmaMachine) encript(text string) string {
+	s := make([]string, 0)
+	for _, char := range text {
+		//一連の変換処理を実行する
+		fmt.Println(string(char))
+		encryptedChar := e.goThrough(string(char))
+		s = append(s, encryptedChar)
+	}
+	//変換処理で取得した文字列のスライスをjoinで結合してreturn
+	return strings.Join(s, "")
+}
+
+func (e *EnigmaMachine) decript(text string) string {
+	s := make([]string, 0)
+	//ローテーションしたroterを初期位置に戻す
+	for _, roter := range e.Roters {
+		roter.reset()
+	}
+	for _, char := range text {
+		//一連の変換処理を実行する
+		fmt.Println(string(char))
+		encryptedChar := e.goThrough(string(char))
+		s = append(s, encryptedChar)
+	}
+	return strings.Join(s, "")
+}
+
+func (e *EnigmaMachine) goThrough(char string) string {
+	char = strings.ToUpper(char)
+	//文字列がアルファベットにないものだったらそのまま返す
+	if !strings.Contains(ALPHABET, char) {
+		return char
+	}
+	indexNum := strings.Index(ALPHABET, char)
+	// fmt.Println(indexNum, "first")
+
+	indexNum = e.PlugBoard.forward(indexNum)
+	// fmt.Println(indexNum, "plugboard_forward")
+
+	for _, roter := range e.Roters {
+		indexNum = roter.forward(indexNum)
+	}
+
+	indexNum = e.Reflector.reflect(indexNum)
+	// fmt.Println(indexNum, "reflector")
+
+	//roterを逆順で回してbackwardする
+	for i := 0; i < len(e.Roters)/2; i++ {
+		e.Roters[i], e.Roters[len(e.Roters)-i-1] = e.Roters[len(e.Roters)-i-1], e.Roters[i]
+	}
+	//逆順になった各ローターでbackward
+	for _, roter := range e.Roters {
+		indexNum = roter.backward(indexNum)
+	}
+	// fmt.Println(indexNum, "roter_backward")
+
+	indexNum = e.PlugBoard.backward(indexNum)
+	// fmt.Println(indexNum, "plugboard_backward")
+
+	//逆順になったローターをローテーションする
+	for _, roter := range e.Roters {
+		if roter.rotate(0)%len(ALPHABET) != 0 {
+			break
+		}
+	}
+
+	//逆順になったroterを元に戻す
+	for i := 0; i < len(e.Roters)/2; i++ {
+		e.Roters[i], e.Roters[len(e.Roters)-i-1] = e.Roters[len(e.Roters)-i-1], e.Roters[i]
+	}
+
+	char = string(ALPHABET[indexNum])
+	// fmt.Println(string(ALPHABET[indexNum]))
+	return char
+
 }
