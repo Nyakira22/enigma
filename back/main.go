@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 )
@@ -9,25 +10,48 @@ import (
 var ALPHABET string = generateAlphabet()
 
 func main() {
-	mapAlphabet := "BADC"
-	if len(mapAlphabet) > len(ALPHABET) {
-		mapAlphabet = mapAlphabet[:len(ALPHABET)]
-	}
 	//インスタンスを作成
-	plugboard := NewPlugBoard(mapAlphabet)
-	roter1 := NewRoter(mapAlphabet, 3)
-	roter2 := NewRoter(mapAlphabet, 2)
-	roter3 := NewRoter(mapAlphabet, 1)
-	refrector := NewReflector(mapAlphabet)
-	//roterのスライスを作成
+	pulugboard := NewPlugBoard(getRandomAlphabet())
+	roter1 := NewRoter(getRandomAlphabet(), 3)
+	roter2 := NewRoter(getRandomAlphabet(), 2)
+	roter3 := NewRoter(getRandomAlphabet(), 1)
 	roters := []*Roter{
 		roter1,
 		roter2,
 		roter3,
 	}
-	EnigmaMachine := NewEnigmaMachine(*plugboard, *refrector, roters)
-	encryptedText := EnigmaMachine.encript("T")
-	fmt.Println(encryptedText)
+
+	//アルファベットのスライスを生成
+	alphabetList := make([]string, 0, len(ALPHABET))
+	for _, char := range ALPHABET {
+		alphabetList = append(alphabetList, string(char))
+	}
+
+	//アルファベットリストのインデックスを取得
+	indexes := make([]int, len(alphabetList))
+	for i := range indexes {
+		indexes[i] = i
+	}
+
+	r := []rune(ALPHABET)
+	// ランダムな要素のペアを選んで交換
+	for i := 0; i < int(len(r)/2); i++ {
+		x := rand.Intn(len(indexes))
+		index_x := indexes[x]
+		indexes = append(indexes[:x], indexes[x+1:]...)
+		y := rand.Intn(len(indexes))
+		index_y := indexes[y]
+		indexes = append(indexes[:y], indexes[y+1:]...)
+		r[index_x], r[index_y] = r[index_y], r[index_x]
+	}
+
+	reflector := NewReflector(string(r))
+	enigma := NewEnigmaMachine(*pulugboard, *reflector, roters)
+	s := "ATTACK KYOTO"
+	e := enigma.encript(s)
+	fmt.Println(e)
+	d := enigma.decript(e)
+	fmt.Println(d)
 
 }
 
@@ -135,6 +159,7 @@ func NewReflector(mapAlphabet string) *Reflector {
 	//生成したmapのkey:valueが対の関係になっているかチェック
 	for x, y := range ref.reflectorMap {
 		if x != ref.reflectorMap[y] {
+			fmt.Println("ValueError", x, y)
 			os.Exit(1)
 		}
 	}
@@ -173,7 +198,6 @@ func (e *EnigmaMachine) encript(text string) string {
 	s := make([]string, 0)
 	for _, char := range text {
 		//一連の変換処理を実行する
-		fmt.Println(string(char))
 		encryptedChar := e.goThrough(string(char))
 		s = append(s, encryptedChar)
 	}
@@ -189,7 +213,6 @@ func (e *EnigmaMachine) decript(text string) string {
 	}
 	for _, char := range text {
 		//一連の変換処理を実行する
-		fmt.Println(string(char))
 		encryptedChar := e.goThrough(string(char))
 		s = append(s, encryptedChar)
 	}
@@ -203,17 +226,14 @@ func (e *EnigmaMachine) goThrough(char string) string {
 		return char
 	}
 	indexNum := strings.Index(ALPHABET, char)
-	// fmt.Println(indexNum, "first")
 
 	indexNum = e.PlugBoard.forward(indexNum)
-	// fmt.Println(indexNum, "plugboard_forward")
 
 	for _, roter := range e.Roters {
 		indexNum = roter.forward(indexNum)
 	}
 
 	indexNum = e.Reflector.reflect(indexNum)
-	// fmt.Println(indexNum, "reflector")
 
 	//roterを逆順で回してbackwardする
 	for i := 0; i < len(e.Roters)/2; i++ {
@@ -223,14 +243,11 @@ func (e *EnigmaMachine) goThrough(char string) string {
 	for _, roter := range e.Roters {
 		indexNum = roter.backward(indexNum)
 	}
-	// fmt.Println(indexNum, "roter_backward")
-
 	indexNum = e.PlugBoard.backward(indexNum)
-	// fmt.Println(indexNum, "plugboard_backward")
 
 	//逆順になったローターをローテーションする
 	for _, roter := range e.Roters {
-		if roter.rotate(0)%len(ALPHABET) != 0 {
+		if roter.rotate(roter.offset)%len(ALPHABET) != 0 {
 			break
 		}
 	}
@@ -241,7 +258,14 @@ func (e *EnigmaMachine) goThrough(char string) string {
 	}
 
 	char = string(ALPHABET[indexNum])
-	// fmt.Println(string(ALPHABET[indexNum]))
 	return char
+}
 
+func getRandomAlphabet() string {
+	randIndices := rand.Perm(len(ALPHABET))
+	randomString := make([]byte, len(ALPHABET))
+	for i, idx := range randIndices {
+		randomString[i] = ALPHABET[idx]
+	}
+	return string(randomString)
 }
