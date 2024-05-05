@@ -7,7 +7,6 @@ type Roter struct {
 	rotations int
 }
 
-// PlugBoardを埋め込んで(embedded)初期化
 func NewRoter(mapAlphabet string, offset int) *Roter {
 	parent := NewPlugBoard(mapAlphabet)
 	r := &Roter{
@@ -19,13 +18,14 @@ func NewRoter(mapAlphabet string, offset int) *Roter {
 	return r
 }
 
+// アルファベットの順をoffsetの数値だけローテーションする
 func (r *Roter) rotate(offset int) int {
-	//offsetの値を元にALPHABETの先頭からn文字を後ろに移動させる
 	r.alphabet = r.alphabet[offset:] + r.alphabet[:offset]
 	r.rotations += offset
 	return r.rotations
 }
 
+// ローターの設定を初期値に戻す
 func (r *Roter) reset() {
 	r.alphabet = ALPHABET
 	r.rotations = 0

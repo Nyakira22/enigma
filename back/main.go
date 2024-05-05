@@ -8,7 +8,6 @@ import (
 var ALPHABET string = generateAlphabet()
 
 func main() {
-	//インスタンスを作成
 	pulugboard := NewPlugBoard(getRandomAlphabet())
 	roter1 := NewRoter(getRandomAlphabet(), 3)
 	roter2 := NewRoter(getRandomAlphabet(), 2)
@@ -31,8 +30,8 @@ func main() {
 		indexes[i] = i
 	}
 
+	// ランダムなアルファベットののペアを生成
 	r := []rune(ALPHABET)
-	// ランダムな要素のペアを選んで交換
 	for i := 0; i < int(len(r)/2); i++ {
 		x := rand.Intn(len(indexes))
 		index_x := indexes[x]
@@ -53,6 +52,7 @@ func main() {
 
 }
 
+// ランダムなアルファベット文字列を生成
 func getRandomAlphabet() string {
 	randIndices := rand.Perm(len(ALPHABET))
 	randomString := make([]byte, len(ALPHABET))
