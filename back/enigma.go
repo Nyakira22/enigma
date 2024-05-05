@@ -45,42 +45,34 @@ func (e *EnigmaMachine) decript(text string) string {
 
 func (e *EnigmaMachine) goThrough(char string) string {
 	char = strings.ToUpper(char)
-	//文字列がアルファベットにないものだったらそのまま返す
 	if !strings.Contains(ALPHABET, char) {
 		return char
 	}
 	indexNum := strings.Index(ALPHABET, char)
-
 	indexNum = e.PlugBoard.forward(indexNum)
-
 	for _, roter := range e.Roters {
 		indexNum = roter.forward(indexNum)
 	}
-
 	indexNum = e.Reflector.reflect(indexNum)
-
-	//roterを逆順で回してbackwardする
+	//roterを逆順にする
 	for i := 0; i < len(e.Roters)/2; i++ {
 		e.Roters[i], e.Roters[len(e.Roters)-i-1] = e.Roters[len(e.Roters)-i-1], e.Roters[i]
 	}
-	//逆順になった各ローターでbackward
+	//逆順になったローターでbackwardを実行
 	for _, roter := range e.Roters {
 		indexNum = roter.backward(indexNum)
 	}
 	indexNum = e.PlugBoard.backward(indexNum)
-
-	//逆順になったローターをローテーションする
+	//ローターをローテーションする
 	for _, roter := range e.Roters {
 		if roter.rotate(roter.offset)%len(ALPHABET) != 0 {
 			break
 		}
 	}
-
 	//逆順になったroterを元に戻す
 	for i := 0; i < len(e.Roters)/2; i++ {
 		e.Roters[i], e.Roters[len(e.Roters)-i-1] = e.Roters[len(e.Roters)-i-1], e.Roters[i]
 	}
-
 	char = string(ALPHABET[indexNum])
 	return char
 }

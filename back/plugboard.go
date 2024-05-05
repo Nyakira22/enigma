@@ -9,9 +9,7 @@ type PlugBoard struct {
 	backwardMap map[string]string
 }
 
-// コンストラクタ
 func NewPlugBoard(mapAlphabet string) *PlugBoard {
-	//mapの初期化
 	p := &PlugBoard{
 		alphabet:    ALPHABET,
 		forwardMap:  make(map[string]string),
@@ -22,7 +20,7 @@ func NewPlugBoard(mapAlphabet string) *PlugBoard {
 }
 
 func (p *PlugBoard) mapping(mapAlphabet string) {
-	//渡された文字列の長さ分だけのALPHABETを取得しループ、ALPHABETの分だけループしようとするとエラー
+	//渡された文字列の長さ分だけのALPHABETを取得しループ
 	for i, char := range p.alphabet[:len(mapAlphabet)] {
 		p.forwardMap[string(char)] = string(mapAlphabet[i])
 		p.backwardMap[string(mapAlphabet[i])] = string(char)
@@ -30,7 +28,7 @@ func (p *PlugBoard) mapping(mapAlphabet string) {
 }
 
 func (p *PlugBoard) forward(index_num int) int {
-	//n[0]はbyteを返すので、一旦runeスライスを作成する
+	//n[i]はbyteを返すので、一旦runeスライスを作成する
 	char := string(getRuneAt(p.alphabet, index_num))
 	char = p.forwardMap[char]
 	return strings.Index(p.alphabet, char)
