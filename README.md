@@ -1,5 +1,13 @@
 go practice
 
+#環境構築　　
+以下のコマンドを実行  
+```
+docker compose up -d --build
+docker exec -it backend_enigma bash
+go run main.go plugboard.go roter.go reflector.go enigma.go
+```  
+  
 #エニグマとは　　
 エニグマとは第二次世界大戦でナチス・ドイツが用いた暗号機である。  
 対戦中の1939年にイギリスのアラン・チューリングらによってエニグマの解読に成功した。  
@@ -23,5 +31,8 @@ go practice
   
 これらのパーツ（オブジェクト）を組み合わせてGo言語でenigmaを再現する  
 
-![enigma図解 (1)](https://github.com/Nyakira22/enigma/assets/162646793/a8a3e64e-58c3-49ab-84bd-6dd439a58f1a)
+・初期配置
+![enigma図解 (1)](https://github.com/Nyakira22/enigma/assets/162646793/a8a3e64e-58c3-49ab-84bd-6dd439a58f1a)  
+
+・1文字暗号化した後  
 ![enigma図解](https://github.com/Nyakira22/enigma/assets/162646793/38e675ea-8cbc-4729-9662-6750aa09bf90)
