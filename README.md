@@ -21,4 +21,7 @@ go practice
 この反転性がエニグマの複合機能を実現させている。例えば ABC と入力して DBG と出力された際に逆に DBG と入力すれば ABC と出力されるのは自明である。
   
   
-これらのパーツ（オブジェクト）を組み合わせてGo言語でenigmaを再現する
+これらのパーツ（オブジェクト）を組み合わせてGo言語でenigmaを再現する  
+
+![enigma図解 (1)](https://github.com/Nyakira22/enigma/assets/162646793/a8a3e64e-58c3-49ab-84bd-6dd439a58f1a)
+![enigma図解](https://github.com/Nyakira22/enigma/assets/162646793/38e675ea-8cbc-4729-9662-6750aa09bf90)
