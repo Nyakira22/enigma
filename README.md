@@ -1,6 +1,5 @@
-go practice
 
-#環境構築  
+#### 環境構築  
 以下のコマンドを実行  
 ```
 docker compose up -d --build
@@ -8,11 +7,11 @@ docker exec -it backend_enigma bash
 go run main.go plugboard.go roter.go reflector.go enigma.go
 ```
   
-#エニグマとは  
+#### エニグマとは  
 エニグマとは第二次世界大戦でナチス・ドイツが用いた暗号機である。  
 対戦中の1939年にイギリスのアラン・チューリングらによってエニグマの解読に成功した。  
 
-#構造  
+#### 構造  
 大きく分けてプラグボード、ローター、リフレクターの三つのパーツで構成されている。  
 それぞれのパーツを組み合わせることで強固な暗号を実現していた。  
   
@@ -31,7 +30,7 @@ go run main.go plugboard.go roter.go reflector.go enigma.go
   
 これらのパーツ（オブジェクト）を組み合わせてGo言語でenigmaを再現する  
 
-##処理の構成
+## 処理の構成
 ・初期配置
 ![enigma図解 (1)](https://github.com/Nyakira22/enigma/assets/162646793/a8a3e64e-58c3-49ab-84bd-6dd439a58f1a)  
 
