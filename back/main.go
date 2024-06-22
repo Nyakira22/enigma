@@ -44,7 +44,7 @@ func main() {
 
 	reflector := NewReflector(string(r))
 	enigma := NewEnigmaMachine(*pulugboard, *reflector, roters)
-	s := "GOLANG PRACTICE"
+	s := "enigma with golang"
 	e := enigma.encript(s)
 	fmt.Println(e)
 	d := enigma.decript(e)
