@@ -1,6 +1,8 @@
 package main
 
-import "strings"
+import (
+	"strings"
+)
 
 // enigmamachine roterは配列で複数定義できるようにする
 type EnigmaMachine struct {
