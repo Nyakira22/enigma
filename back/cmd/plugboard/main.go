@@ -1,58 +1,51 @@
-package main
+package plugboard
 
 import (
 	"strings"
+
+	"github.com/akiradomi/workspace/go-enigma/enigma/back/util"
 )
 
 // PlugBoard
 type PlugBoard struct {
-	alphabet    string
+	Alphabet    string
 	forwardMap  map[string]string
 	backwardMap map[string]string
 }
 
 func NewPlugBoard(mapAlphabet string) *PlugBoard {
 	p := &PlugBoard{
-		alphabet:    ALPHABET,
+		Alphabet:    util.ALPHABET,
 		forwardMap:  make(map[string]string),
 		backwardMap: make(map[string]string),
 	}
-	p.mapping(mapAlphabet)
+	p.Mapping(mapAlphabet)
 	return p
 }
 
-func (p *PlugBoard) mapping(mapAlphabet string) {
+func (p *PlugBoard) Mapping(mapAlphabet string) {
 	//渡された文字列の長さ分だけのALPHABETを取得しループ
-	for i, char := range p.alphabet[:len(mapAlphabet)] {
+	for i, char := range p.Alphabet[:len(mapAlphabet)] {
 		p.forwardMap[string(char)] = string(mapAlphabet[i])
 		p.backwardMap[string(mapAlphabet[i])] = string(char)
 	}
 }
 
-func (p *PlugBoard) forward(index_num int) int {
+func (p *PlugBoard) Forward(index_num int) int {
 	//n[i]はbyteを返すので、一旦runeスライスを作成する
-	char := string(getRuneAt(p.alphabet, index_num))
+	char := string(GetRuneAt(p.Alphabet, index_num))
 	char = p.forwardMap[char]
-	return strings.Index(p.alphabet, char)
+	return strings.Index(p.Alphabet, char)
 }
 
-func (p *PlugBoard) backward(index_num int) int {
+func (p *PlugBoard) Backward(index_num int) int {
 	//n[0]はbyteを返すので、一旦runeスライスを作成する
-	char := string(getRuneAt(p.alphabet, index_num))
+	char := string(GetRuneAt(p.Alphabet, index_num))
 	char = p.backwardMap[char]
-	return strings.Index(p.alphabet, char)
+	return strings.Index(p.Alphabet, char)
 }
 
-func getRuneAt(s string, i int) rune {
+func GetRuneAt(s string, i int) rune {
 	rs := []rune(s)
 	return rs[i]
-}
-
-func generateAlphabet() string {
-	alphabet := make([]byte, 0, 26)
-	var ch byte
-	for ch = 'A'; ch <= 'Z'; ch++ {
-		alphabet = append(alphabet, ch)
-	}
-	return string(alphabet)
 }

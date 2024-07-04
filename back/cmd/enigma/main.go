@@ -1,17 +1,23 @@
-package main
+package enigma
 
 import (
+	"fmt"
 	"strings"
+
+	"github.com/akiradomi/workspace/go-enigma/enigma/back/cmd/plugboard"
+	"github.com/akiradomi/workspace/go-enigma/enigma/back/cmd/reflector"
+	"github.com/akiradomi/workspace/go-enigma/enigma/back/cmd/roter"
+	"github.com/akiradomi/workspace/go-enigma/enigma/back/util"
 )
 
 // enigmamachine roterは配列で複数定義できるようにする
 type EnigmaMachine struct {
-	PlugBoard
-	Reflector
-	Roters []*Roter
+	plugboard.PlugBoard
+	reflector.Reflector
+	Roters []*roter.Roter
 }
 
-func NewEnigmaMachine(PlugBoard PlugBoard, Reflector Reflector, Roters []*Roter) *EnigmaMachine {
+func NewEnigmaMachine(PlugBoard plugboard.PlugBoard, Reflector reflector.Reflector, Roters []*roter.Roter) *EnigmaMachine {
 	e := &EnigmaMachine{
 		PlugBoard: PlugBoard,
 		Reflector: Reflector,
@@ -20,54 +26,55 @@ func NewEnigmaMachine(PlugBoard PlugBoard, Reflector Reflector, Roters []*Roter)
 	return e
 }
 
-func (e *EnigmaMachine) encript(text string) string {
+func (e *EnigmaMachine) Encript(text string) string {
+	fmt.Println(text)
 	s := make([]string, 0)
 	for _, char := range text {
 		//一連の変換処理を実行する
-		encryptedChar := e.goThrough(string(char))
+		encryptedChar := e.GoThrough(string(char))
 		s = append(s, encryptedChar)
 	}
 	//変換処理で取得した文字列のスライスをjoinで結合してreturn
 	return strings.Join(s, "")
 }
 
-func (e *EnigmaMachine) decript(text string) string {
+func (e *EnigmaMachine) Decript(text string) string {
 	s := make([]string, 0)
 	//ローテーションしたroterを初期位置に戻す
 	for _, roter := range e.Roters {
-		roter.reset()
+		roter.Reset()
 	}
 	for _, char := range text {
 		//一連の変換処理を実行する
-		encryptedChar := e.goThrough(string(char))
+		encryptedChar := e.GoThrough(string(char))
 		s = append(s, encryptedChar)
 	}
 	return strings.Join(s, "")
 }
 
-func (e *EnigmaMachine) goThrough(char string) string {
+func (e *EnigmaMachine) GoThrough(char string) string {
 	char = strings.ToUpper(char)
-	if !strings.Contains(ALPHABET, char) {
+	if !strings.Contains(util.ALPHABET, char) {
 		return char
 	}
-	indexNum := strings.Index(ALPHABET, char)
-	indexNum = e.PlugBoard.forward(indexNum)
+	indexNum := strings.Index(util.ALPHABET, char)
+	indexNum = e.PlugBoard.Forward(indexNum)
 	for _, roter := range e.Roters {
-		indexNum = roter.forward(indexNum)
+		indexNum = roter.Forward(indexNum)
 	}
-	indexNum = e.Reflector.reflect(indexNum)
+	indexNum = e.Reflector.Reflect(indexNum)
 	//roterを逆順にする
 	for i := 0; i < len(e.Roters)/2; i++ {
 		e.Roters[i], e.Roters[len(e.Roters)-i-1] = e.Roters[len(e.Roters)-i-1], e.Roters[i]
 	}
 	//逆順になったローターでbackwardを実行
 	for _, roter := range e.Roters {
-		indexNum = roter.backward(indexNum)
+		indexNum = roter.Backward(indexNum)
 	}
-	indexNum = e.PlugBoard.backward(indexNum)
+	indexNum = e.PlugBoard.Backward(indexNum)
 	//ローターをローテーションする
 	for _, roter := range e.Roters {
-		if roter.rotate(roter.offset)%len(ALPHABET) != 0 {
+		if roter.Rotate(roter.Offset)%len(util.ALPHABET) != 0 {
 			break
 		}
 	}
@@ -75,6 +82,6 @@ func (e *EnigmaMachine) goThrough(char string) string {
 	for i := 0; i < len(e.Roters)/2; i++ {
 		e.Roters[i], e.Roters[len(e.Roters)-i-1] = e.Roters[len(e.Roters)-i-1], e.Roters[i]
 	}
-	char = string(ALPHABET[indexNum])
+	char = string(util.ALPHABET[indexNum])
 	return char
 }
