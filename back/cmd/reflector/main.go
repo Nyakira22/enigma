@@ -1,8 +1,10 @@
-package main
+package reflector
 
 import (
 	"fmt"
 	"os"
+
+	"github.com/akiradomi/workspace/go-enigma/enigma/back/util"
 )
 
 // Reflector
@@ -16,7 +18,7 @@ func NewReflector(mapAlphabet string) *Reflector {
 	}
 
 	//渡されたtextとALPHABETの文字列からmapを生成
-	for i, char := range ALPHABET[:len(mapAlphabet)] {
+	for i, char := range util.ALPHABET[:len(mapAlphabet)] {
 		ref.reflectorMap[string(char)] = string(mapAlphabet[i])
 	}
 
@@ -30,10 +32,10 @@ func NewReflector(mapAlphabet string) *Reflector {
 	return ref
 }
 
-func (ref *Reflector) reflect(index_num int) int {
+func (ref *Reflector) Reflect(index_num int) int {
 	//渡されたindex番号の文字列をキーとする文字列をmapから取得
-	reflected_char := ref.reflectorMap[string(ALPHABET[index_num])]
-	for i, v := range ALPHABET {
+	reflected_char := ref.reflectorMap[string(util.ALPHABET[index_num])]
+	for i, v := range util.ALPHABET {
 		//ALPHABETの文字列から指定の文字列のindex番号を取得しreturn
 		if string(v) == reflected_char {
 			return i
